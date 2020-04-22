@@ -1,0 +1,33 @@
+#!/bin/bash
+
+#Dramatically simplifies the python version of this program
+#by automatically appending a timestamp instead of checking
+#to see if one is needed. The file is renamed to the form
+#<original name>.<current time in seconds>.<random string>
+#The <original name> is to identify the file, should it need to be recovered
+#The <current time in seconds> is used to determine when the file was deleted
+#The <random string> is used to prevent two files with the same name and
+#deleted at the same time from conflicting.
+
+if [[ "$1" == "help" ]]
+then
+   echo \
+   'Parameters:
+      All arguments  = File/pipe/directory/whatever to move to ~/.garbage'
+   exit
+fi
+
+for var in "$@"
+do
+   randstr=$( head /dev/urandom | tr -dc A-Za-z0-9 | head -c 10 )
+   timeinseconds=$( date +%s )   
+   
+   #Make sure to strip off any trailing '/' on directories.
+   #This has no effect on normal files
+   filename=$( basename "$var" )
+
+   newfilename="${filename}.${timeinseconds}.${randstr}"
+
+   mv "$var" ~/.garbage/"${newfilename}"
+done 
+
